@@ -16,6 +16,7 @@ class MyEventHandler(EventHandler):
             pid = event.get_pid()
             # function name
             address = module.resolve("PR_Write")
+            print("[+] Found the PR_Write method at Address: " + str(address))
             # here we resolve the memory address - a breakpoint function is called PR_Write
             event.debug.hook_function(pid, address, preCB=PR_Write, postCB=None, paramCount=3, signature=None)
 
@@ -25,7 +26,7 @@ debug = Debug(MyEventHandler())
 try:
     # search for the firefox.exe process
     for (process, name) in debug.system.find_processes_by_filename("firefox.exe"):
-        print(process.get_pid(), name) # retrieve the PID
+        print("[+] Found Firefox PID: " + process.get_pid()) # retrieve the PID
     # attach it to the debugger
     debug.attach(process.get_pid())
     debug.loop()
